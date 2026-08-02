@@ -59,7 +59,8 @@
     box-shadow:var(--shadow);
   }
   .tab{
-    flex:1;
+    flex:1 1 0;
+    min-width:0;
     border:none;
     background:transparent;
     color:var(--text-dim);
@@ -70,6 +71,8 @@
     cursor:pointer;
     text-align:center;
     line-height:1.2;
+    white-space:normal;
+    word-break:break-word;
   }
   .tab[aria-selected="true"]{
     background:var(--accent);
