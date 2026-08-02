@@ -1,0 +1,593 @@
+<title>Gym Checklist — Bjorn</title>
+<style>
+  :root{
+    --bg:#0a0a0a;
+    --surface:#141414;
+    --surface-2:#1c1c1c;
+    --border:#2b2b2b;
+    --text:#f0f0f0;
+    --text-dim:#8a8a8a;
+    --accent:#c6ff00;
+    --accent-ink:#0a0a0a;
+    --success:#c6ff00;
+    --dot-empty:#333333;
+    --shadow:0 1px 2px rgba(0,0,0,0.6);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{
+    max-width:480px;
+    margin:0 auto;
+    padding:16px 14px 40px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+  .masthead{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .masthead h1{
+    font-size:16px;
+    font-weight:800;
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+  .plate{
+    font-size:11px;
+    font-weight:700;
+    color:var(--text-dim);
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:999px;
+    padding:4px 10px;
+  }
+  .tabs{
+    display:flex;
+    gap:6px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:4px;
+    box-shadow:var(--shadow);
+  }
+  .tab{
+    flex:1;
+    border:none;
+    background:transparent;
+    color:var(--text-dim);
+    font-size:12px;
+    font-weight:700;
+    padding:9px 4px;
+    border-radius:9px;
+    cursor:pointer;
+    text-align:center;
+    line-height:1.2;
+  }
+  .tab[aria-selected="true"]{
+    background:var(--accent);
+    color:var(--accent-ink);
+  }
+  .tab .today-mark{
+    display:block;
+    font-size:9px;
+    font-weight:800;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    opacity:0.85;
+    margin-top:2px;
+  }
+
+  .day-title{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    padding:2px 2px 0;
+  }
+  .day-title .name{
+    font-size:20px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+  }
+  .day-title .session{
+    font-size:11px;
+    font-weight:700;
+    color:var(--text-dim);
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+  }
+
+  #groups{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .group{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:10px 12px;
+    box-shadow:var(--shadow);
+  }
+  .group-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding-bottom:6px;
+  }
+  .gname{
+    font-size:12px;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    color:var(--text-dim);
+  }
+  .group-progress{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .frac{
+    font-size:11px;
+    font-weight:700;
+    color:var(--text-dim);
+    font-variant-numeric:tabular-nums;
+  }
+  .bar{
+    width:44px;
+    height:5px;
+    border-radius:3px;
+    background:var(--dot-empty);
+    overflow:hidden;
+    display:inline-block;
+  }
+  .bar i{
+    display:block;
+    width:100%;
+    height:100%;
+    background:var(--success);
+    transform-origin:left center;
+    transition:transform .2s ease;
+  }
+
+  .item{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:9px 0;
+    border-top:1px solid var(--border);
+  }
+  .group .item:first-of-type{border-top:none;}
+  .item .iname{
+    font-size:14px;
+    font-weight:600;
+    line-height:1.25;
+    text-shadow:0 0 6px color-mix(in srgb, var(--accent) 35%, transparent);
+  }
+  .item .iname.done{
+    text-decoration:line-through;
+    text-decoration-color:var(--accent);
+    text-decoration-thickness:2px;
+    color:var(--text-dim);
+    text-shadow:0 0 8px color-mix(in srgb, var(--accent) 70%, transparent);
+  }
+  .item .iset{
+    margin-left:6px;
+    font-size:11px;
+    font-weight:700;
+    color:var(--text-dim);
+  }
+  .item .inote{
+    display:block;
+    font-size:11px;
+    font-weight:500;
+    color:var(--text-dim);
+    margin-top:1px;
+  }
+  .dots{
+    display:flex;
+    gap:6px;
+    flex-shrink:0;
+  }
+  .dot{
+    width:26px;height:26px;
+    border-radius:50%;
+    border:2px solid var(--dot-empty);
+    background:transparent;
+    cursor:pointer;
+    padding:0;
+    transition:background .12s ease, border-color .12s ease, transform .08s ease;
+  }
+  .dot:active{transform:scale(0.88);}
+  .dot.filled{
+    background:var(--success);
+    border-color:var(--success);
+  }
+
+  .reset-row{
+    display:flex;
+    justify-content:center;
+    padding-top:4px;
+  }
+  #resetBtn{
+    border:1px solid var(--border);
+    background:var(--surface);
+    color:var(--text-dim);
+    font-size:12px;
+    font-weight:700;
+    padding:8px 14px;
+    border-radius:9px;
+    cursor:pointer;
+  }
+
+  .rest-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:8px 12px;
+    box-shadow:var(--shadow);
+  }
+  .rest-row .rlabel{
+    font-size:11px;
+    font-weight:800;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    color:var(--text-dim);
+  }
+  .rest-row .rval{
+    font-size:14px;
+    font-weight:800;
+    font-variant-numeric:tabular-nums;
+    min-width:38px;
+    text-align:center;
+  }
+  .rest-row button{
+    width:28px;height:28px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    background:var(--surface-2);
+    color:var(--text);
+    font-size:15px;
+    font-weight:800;
+    cursor:pointer;
+  }
+
+  #restTimer{
+    position:fixed;
+    left:0; right:0; bottom:0;
+    display:none;
+    justify-content:center;
+    padding:14px;
+    background:linear-gradient(to top, var(--bg) 60%, transparent);
+    z-index:20;
+  }
+  #restTimer.active{ display:flex; }
+  #restTimer .pill{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background:var(--surface);
+    border:1px solid var(--accent);
+    border-radius:999px;
+    padding:10px 18px;
+    box-shadow:0 0 16px color-mix(in srgb, var(--accent) 45%, transparent);
+    cursor:pointer;
+    max-width:480px;
+    width:100%;
+    justify-content:center;
+  }
+  #restTimer .rlbl{
+    font-size:11px;
+    font-weight:800;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    color:var(--text-dim);
+  }
+  #restTimer .rtime{
+    font-size:22px;
+    font-weight:900;
+    color:var(--accent);
+    font-variant-numeric:tabular-nums;
+    text-shadow:0 0 10px color-mix(in srgb, var(--accent) 60%, transparent);
+  }
+</style>
+
+<div class="app">
+  <div class="masthead">
+    <h1>Gym Log</h1>
+    <span class="plate" id="dateLabel"></span>
+  </div>
+
+  <div class="tabs" id="tabs" role="tablist"></div>
+
+  <div id="dayTitle" class="day-title"></div>
+
+  <div id="groups"></div>
+
+  <div class="rest-row">
+    <span class="rlabel">Rest</span>
+    <button id="restDown">−</button>
+    <span class="rval" id="restVal">60s</span>
+    <button id="restUp">+</button>
+  </div>
+
+  <div class="reset-row">
+    <button id="resetBtn">Reset today's dots</button>
+  </div>
+</div>
+
+<div id="restTimer">
+  <div class="pill" id="restPill">
+    <span class="rlbl">Rest — tap to skip</span>
+    <span class="rtime" id="restTime">0:60</span>
+  </div>
+</div>
+
+<script>
+(function(){
+  // ---- Program data ----
+  // Rolling 3-day cycle, no weekday lock: Chest & Back -> Arms & Shoulders -> Legs -> repeat.
+  // Anchor: 2026-08-02 = cycle index 0 (Chest & Back), per Bjorn's confirmation.
+  var ANCHOR = new Date(2026, 7, 2); // Aug 2 2026, local midnight
+
+  var CYCLE = [
+    { // 0 — Chest & Back
+      name: "Chest & Back",
+      groups: [
+        { name:"Chest", items:[
+          {n:"Weighted dips", s:3},
+          {n:"Lying down flys", s:3},
+          {n:"Going down flys", s:3},
+          {n:"Smith machine incline press", s:2}
+        ]},
+        { name:"Back", items:[
+          {n:"Standing bent over rows", s:3},
+          {n:"Lat pulldown", s:2},
+          {n:"Seated rows", s:3},
+          {n:"Hyper extensions", s:2},
+          {n:"Shrugs", s:3}
+        ]},
+        { name:"Abs", items:[
+          {n:"Cable crunch", s:3},
+          {n:"Lying down leg raises", s:3}
+        ]}
+      ]
+    },
+    { // 1 — Arms & Shoulders
+      name: "Arms & Shoulders",
+      groups: [
+        { name:"Biceps", items:[
+          {n:"Standing cable curls", s:3},
+          {n:"Hammer curls", s:3},
+          {n:"Preacher curls", s:3}
+        ]},
+        { name:"Triceps", items:[
+          {n:"Standing pushdowns", s:2},
+          {n:"Overhead push (extension)", s:3},
+          {n:"Dips", s:2},
+          {n:"Skull crushers", s:3}
+        ]},
+        { name:"Forearms", items:[
+          {n:"Inverted curls", s:3},
+          {n:"Forearm curls", s:3}
+        ]},
+        { name:"Shoulders", items:[
+          {n:"Machine shoulder press / smith press", s:3},
+          {n:"Lateral raise", s:3},
+          {n:"Seated angle lat raise", s:3},
+          {n:"Face pulls", s:3}
+        ]}
+      ]
+    },
+    { // 2 — Legs
+      name: "Legs",
+      groups: [
+        { name:"Hamstring", items:[
+          {n:"Lying down ham curls", s:3},
+          {n:"Seated ham curls", s:3}
+        ]},
+        { name:"Quad", items:[
+          {n:"Hack squats", s:3},
+          {n:"Smith squats", s:2},
+          {n:"Leg extensions", s:3},
+          {n:"Walking lunges", s:2}
+        ]},
+        { name:"Adductor", items:[
+          {n:"Adductor machine", s:2}
+        ]},
+        { name:"Calves", items:[
+          {n:"Standing calves", s:3},
+          {n:"Seated calves", s:3}
+        ]}
+      ]
+    }
+  ];
+  var CYCLE_LABELS = ["Chest & Back","Arms & Shoulders","Legs"];
+
+  var LS_LASTDATE = "gymlog:lastDate";
+  var LS_PROGRESS = "gymlog:progress"; // JSON blob { "cycleIdx-g-i": filledCount }
+
+  function dateOnly(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+  function cycleIndexFor(d){
+    var days = Math.round((dateOnly(d) - ANCHOR) / 86400000);
+    var idx = days % 3;
+    if (idx < 0) idx += 3;
+    return idx;
+  }
+
+  var todayStr = new Date().toDateString();
+  var storedDate = localStorage.getItem(LS_LASTDATE);
+  if (storedDate !== todayStr) {
+    localStorage.setItem(LS_PROGRESS, "{}");
+    localStorage.setItem(LS_LASTDATE, todayStr);
+  }
+  var progress = JSON.parse(localStorage.getItem(LS_PROGRESS) || "{}");
+
+  var todayIdx = cycleIndexFor(new Date());
+  var selectedIdx = todayIdx;
+
+  function saveProgress(){ localStorage.setItem(LS_PROGRESS, JSON.stringify(progress)); }
+
+  // ---- Tabs ----
+  var tabsEl = document.getElementById("tabs");
+  CYCLE_LABELS.forEach(function(label, idx){
+    var btn = document.createElement("button");
+    btn.className = "tab";
+    btn.setAttribute("role","tab");
+    btn.setAttribute("aria-selected", idx === selectedIdx ? "true" : "false");
+    btn.innerHTML = label + (idx === todayIdx ? "<span class='today-mark'>today</span>" : "");
+    btn.addEventListener("click", function(){
+      selectedIdx = idx;
+      render();
+    });
+    tabsEl.appendChild(btn);
+  });
+
+  document.getElementById("dateLabel").textContent = new Date().toLocaleDateString(undefined, {weekday:"short", month:"short", day:"numeric"});
+
+  // ---- Reset ----
+  document.getElementById("resetBtn").addEventListener("click", function(){
+    Object.keys(progress).forEach(function(k){
+      if (k.indexOf(selectedIdx + "-") === 0) delete progress[k];
+    });
+    saveProgress(); render();
+  });
+
+  // ---- Rest timer ----
+  var LS_RESTLEN = "gymlog:restLen";
+  var restLen = parseInt(localStorage.getItem(LS_RESTLEN) || "60", 10);
+  var restRemaining = 0;
+  var restTicker = null;
+
+  var restValEl = document.getElementById("restVal");
+  var restTimerEl = document.getElementById("restTimer");
+  var restTimeEl = document.getElementById("restTime");
+
+  function renderRestVal(){ restValEl.textContent = restLen + "s"; }
+  renderRestVal();
+
+  document.getElementById("restDown").addEventListener("click", function(){
+    restLen = Math.max(15, restLen - 15);
+    localStorage.setItem(LS_RESTLEN, String(restLen));
+    renderRestVal();
+  });
+  document.getElementById("restUp").addEventListener("click", function(){
+    restLen = Math.min(300, restLen + 15);
+    localStorage.setItem(LS_RESTLEN, String(restLen));
+    renderRestVal();
+  });
+
+  function stopRestTimer(){
+    if (restTicker) { clearInterval(restTicker); restTicker = null; }
+    restTimerEl.classList.remove("active");
+  }
+  function renderRestTime(){
+    var m = Math.floor(restRemaining / 60);
+    var s = restRemaining % 60;
+    restTimeEl.textContent = m + ":" + (s < 10 ? "0" : "") + s;
+  }
+  function startRestTimer(){
+    restRemaining = restLen;
+    renderRestTime();
+    restTimerEl.classList.add("active");
+    if (restTicker) clearInterval(restTicker);
+    restTicker = setInterval(function(){
+      restRemaining--;
+      if (restRemaining <= 0) {
+        stopRestTimer();
+        if (navigator.vibrate) navigator.vibrate([120,80,120]);
+        return;
+      }
+      renderRestTime();
+    }, 1000);
+  }
+  document.getElementById("restPill").addEventListener("click", stopRestTimer);
+
+  // ---- Render ----
+  function render(){
+    Array.prototype.forEach.call(tabsEl.children, function(btn, idx){
+      btn.setAttribute("aria-selected", idx === selectedIdx ? "true" : "false");
+    });
+
+    var titleEl = document.getElementById("dayTitle");
+    var groupsEl = document.getElementById("groups");
+    groupsEl.innerHTML = "";
+
+    var day = CYCLE[selectedIdx];
+    titleEl.innerHTML = '<span class="name">' + day.name + '</span>' +
+      (selectedIdx === todayIdx ? '<span class="session">Today</span>' : '');
+
+    day.groups.forEach(function(group, gi){
+      var card = document.createElement("div");
+      card.className = "group";
+
+      var totalTarget = 0, totalDone = 0;
+      group.items.forEach(function(item, ii){
+        totalTarget += item.s;
+        var key = selectedIdx + "-" + gi + "-" + ii;
+        totalDone += Math.min(progress[key] || 0, item.s);
+      });
+      var pct = totalTarget ? Math.round((totalDone/totalTarget)*100) : 0;
+
+      var head = document.createElement("div");
+      head.className = "group-head";
+      head.innerHTML = '<span class="gname">' + group.name + '</span>' +
+        '<span class="group-progress"><span class="frac">' + totalDone + '/' + totalTarget + '</span>' +
+        '<span class="bar"><i style="transform:scaleX(' + (pct/100) + ')"></i></span></span>';
+      card.appendChild(head);
+
+      group.items.forEach(function(item, ii){
+        var key = selectedIdx + "-" + gi + "-" + ii;
+        var target = item.s;
+        var done = Math.min(progress[key] || 0, target);
+
+        var row = document.createElement("div");
+        row.className = "item";
+
+        var left = document.createElement("div");
+        left.innerHTML = '<span class="iname' + (done >= target ? ' done' : '') + '">' + item.n + '</span>' +
+          '<span class="iset">' + target + ' set' + (target === 1 ? '' : 's') + ' &middot; to failure</span>' +
+          (item.note ? '<span class="inote">' + item.note + '</span>' : '');
+        row.appendChild(left);
+
+        var dots = document.createElement("div");
+        dots.className = "dots";
+        for (var d = 0; d < target; d++) {
+          (function(dotIndex){
+            var dot = document.createElement("button");
+            dot.className = "dot" + (dotIndex < done ? " filled" : "");
+            dot.setAttribute("aria-label", item.n + " set " + (dotIndex+1));
+            dot.addEventListener("click", function(){
+              var current = Math.min(progress[key] || 0, target);
+              var newVal = (dotIndex + 1 === current) ? dotIndex : dotIndex + 1;
+              progress[key] = newVal;
+              saveProgress();
+              if (newVal > current) startRestTimer();
+              render();
+            });
+            dots.appendChild(dot);
+          })(d);
+        }
+        row.appendChild(dots);
+        card.appendChild(row);
+      });
+
+      groupsEl.appendChild(card);
+    });
+  }
+
+  render();
+})();
+</script>
