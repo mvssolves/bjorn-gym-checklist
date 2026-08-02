@@ -1,4 +1,5 @@
 <title>Gym Checklist — Bjorn</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <style>
   :root{
     --bg:#0a0a0a;
@@ -24,7 +25,7 @@
   .app{
     max-width:480px;
     margin:0 auto;
-    padding:16px 14px 40px;
+    padding:calc(12px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right)) calc(32px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left));
     display:flex;
     flex-direction:column;
     gap:12px;
