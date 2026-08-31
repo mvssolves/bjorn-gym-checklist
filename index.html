@@ -1,31 +1,35 @@
-<title>Gym Checklist — Bjorn</title>
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta charset="UTF-8">
+<title>Gym Log</title>
 <style>
   :root{
-    --bg:#0a0a0a;
-    --surface:#141414;
-    --surface-2:#1c1c1c;
-    --border:#2b2b2b;
-    --text:#f0f0f0;
-    --text-dim:#8a8a8a;
-    --accent:#c6ff00;
-    --accent-ink:#0a0a0a;
-    --success:#c6ff00;
-    --dot-empty:#333333;
-    --shadow:0 1px 2px rgba(0,0,0,0.6);
+    --bg:#17130f;
+    --surface:#221c15;
+    --surface-2:#2c2418;
+    --border:#3c3222;
+    --text:#f2ead8;
+    --text-dim:#9c8f78;
+    --accent:#c98a3f;
+    --accent-ink:#17130f;
+    --success:#c98a3f;
+    --dot-empty:#3c3222;
+    --shadow:0 1px 2px rgba(0,0,0,.45), 0 8px 20px -8px rgba(0,0,0,.6);
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Roboto Mono",monospace;
   }
   *{box-sizing:border-box;}
   body{
     margin:0;
-    background:var(--bg);
+    background-color:var(--bg);
+    background-image:radial-gradient(circle at 1px 1px, rgba(255,255,255,.035) 1px, transparent 0);
+    background-size:3px 3px;
     color:var(--text);
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
     -webkit-font-smoothing:antialiased;
+    -webkit-tap-highlight-color:transparent;
   }
   .app{
     max-width:480px;
     margin:0 auto;
-    padding:calc(12px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right)) calc(32px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left));
+    padding:16px 14px 40px;
     display:flex;
     flex-direction:column;
     gap:12px;
@@ -36,57 +40,105 @@
     justify-content:space-between;
   }
   .masthead h1{
-    font-size:16px;
-    font-weight:800;
+    font-size:17px;
+    font-weight:900;
     margin:0;
     letter-spacing:-0.01em;
+    text-transform:uppercase;
+    transform:scaleX(0.92);
+    transform-origin:left center;
+    text-shadow:0 1px 0 rgba(0,0,0,.6), 0 -1px 0 rgba(255,255,255,.05);
   }
   .plate{
+    font-family:var(--mono);
     font-size:11px;
-    font-weight:700;
+    font-weight:600;
     color:var(--text-dim);
     background:var(--surface);
     border:1px solid var(--border);
-    border-radius:999px;
-    padding:4px 10px;
+    border-radius:4px;
+    padding:4px 9px;
+    font-variant-numeric:tabular-nums;
+    letter-spacing:0.02em;
   }
   .tabs{
     display:flex;
-    gap:6px;
+    gap:3px;
     background:var(--surface);
     border:1px solid var(--border);
-    border-radius:12px;
+    border-radius:8px;
     padding:4px;
     box-shadow:var(--shadow);
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
   }
+  .tabs::-webkit-scrollbar{ display:none; }
   .tab{
-    flex:1 1 0;
-    min-width:0;
+    flex:1 0 58px;
     border:none;
     background:transparent;
     color:var(--text-dim);
-    font-size:12px;
+    font-size:10px;
     font-weight:700;
-    padding:9px 4px;
-    border-radius:9px;
+    letter-spacing:0.01em;
+    padding:8px 2px;
+    border-radius:5px;
     cursor:pointer;
     text-align:center;
     line-height:1.2;
-    white-space:normal;
-    word-break:break-word;
+    text-transform:uppercase;
+    white-space:nowrap;
   }
   .tab[aria-selected="true"]{
     background:var(--accent);
     color:var(--accent-ink);
+    box-shadow:inset 0 1px 2px rgba(0,0,0,.25);
   }
+  .tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
   .tab .today-mark{
     display:block;
+    font-family:var(--mono);
     font-size:9px;
-    font-weight:800;
+    font-weight:700;
     letter-spacing:0.05em;
     text-transform:uppercase;
-    opacity:0.85;
+    opacity:0.8;
     margin-top:2px;
+  }
+
+  .cycle{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:0 2px;
+  }
+  .cycle .cyc-label{
+    font-family:var(--mono);
+    font-size:9px;
+    font-weight:700;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    color:var(--text-dim);
+    white-space:nowrap;
+  }
+  .cycle .cyc-strip{
+    flex:1;
+    display:flex;
+    gap:3px;
+  }
+  .cycle .seg{
+    flex:1;
+    height:5px;
+    border-radius:3px;
+    background:var(--dot-empty);
+  }
+  .cycle .seg.train{
+    background:color-mix(in srgb, var(--accent) 38%, var(--dot-empty));
+  }
+  .cycle .seg.today{
+    background:var(--accent);
+    box-shadow:0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent);
   }
 
   .day-title{
@@ -96,16 +148,21 @@
     padding:2px 2px 0;
   }
   .day-title .name{
-    font-size:20px;
-    font-weight:800;
+    font-size:21px;
+    font-weight:900;
     letter-spacing:-0.01em;
+    text-transform:uppercase;
+    transform:scaleX(0.96);
+    transform-origin:left center;
+    display:inline-block;
   }
   .day-title .session{
-    font-size:11px;
+    font-family:var(--mono);
+    font-size:10px;
     font-weight:700;
-    color:var(--text-dim);
+    color:var(--accent);
     text-transform:uppercase;
-    letter-spacing:0.04em;
+    letter-spacing:0.06em;
   }
 
   #groups{
@@ -116,7 +173,8 @@
   .group{
     background:var(--surface);
     border:1px solid var(--border);
-    border-radius:12px;
+    border-top:2px solid color-mix(in srgb, var(--accent) 40%, var(--border));
+    border-radius:8px;
     padding:10px 12px;
     box-shadow:var(--shadow);
   }
@@ -127,10 +185,10 @@
     padding-bottom:6px;
   }
   .gname{
-    font-size:12px;
+    font-size:11px;
     font-weight:800;
     text-transform:uppercase;
-    letter-spacing:0.04em;
+    letter-spacing:0.08em;
     color:var(--text-dim);
   }
   .group-progress{
@@ -139,15 +197,16 @@
     gap:8px;
   }
   .frac{
+    font-family:var(--mono);
     font-size:11px;
-    font-weight:700;
+    font-weight:600;
     color:var(--text-dim);
     font-variant-numeric:tabular-nums;
   }
   .bar{
     width:44px;
-    height:5px;
-    border-radius:3px;
+    height:4px;
+    border-radius:2px;
     background:var(--dot-empty);
     overflow:hidden;
     display:inline-block;
@@ -170,28 +229,23 @@
     border-top:1px solid var(--border);
   }
   .group .item:first-of-type{border-top:none;}
-  .item > div:first-child{
-    flex:1 1 auto;
-    min-width:0;
-  }
   .item .iname{
     font-size:14px;
     font-weight:600;
     line-height:1.25;
-    text-shadow:0 0 6px color-mix(in srgb, var(--accent) 35%, transparent);
+    color:var(--text);
   }
   .item .iname.done{
     text-decoration:line-through;
     text-decoration-color:var(--accent);
     text-decoration-thickness:2px;
     color:var(--text-dim);
-    text-shadow:0 0 8px color-mix(in srgb, var(--accent) 70%, transparent);
   }
   .item .iset{
-    display:block;
-    margin-top:1px;
+    margin-left:6px;
+    font-family:var(--mono);
     font-size:11px;
-    font-weight:700;
+    font-weight:600;
     color:var(--text-dim);
   }
   .item .inote{
@@ -209,16 +263,77 @@
   .dot{
     width:26px;height:26px;
     border-radius:50%;
-    border:2px solid var(--dot-empty);
+    border:3px solid var(--dot-empty);
     background:transparent;
+    box-shadow:inset 0 1px 2px rgba(0,0,0,.35);
     cursor:pointer;
     padding:0;
     transition:background .12s ease, border-color .12s ease, transform .08s ease;
   }
   .dot:active{transform:scale(0.88);}
+  .dot:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
   .dot.filled{
-    background:var(--success);
-    border-color:var(--success);
+    background:linear-gradient(145deg, color-mix(in srgb, var(--accent) 82%, white 18%), var(--accent));
+    border-color:var(--accent);
+    box-shadow:inset 0 -2px 3px rgba(0,0,0,.3);
+  }
+
+  .bonus-picker{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-top:2px solid color-mix(in srgb, var(--accent) 40%, var(--border));
+    border-radius:8px;
+    padding:12px;
+    box-shadow:var(--shadow);
+  }
+  .bonus-picker .blabel{
+    font-size:11px;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--text-dim);
+    display:block;
+    margin-bottom:8px;
+  }
+  .bonus-picker select{
+    width:100%;
+    background:var(--surface-2);
+    color:var(--text);
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:11px 12px;
+    font-size:14px;
+    font-weight:700;
+    font-family:inherit;
+  }
+  .bonus-picker .bhint{
+    font-size:11px;
+    color:var(--text-dim);
+    margin-top:8px;
+  }
+
+  .rest-view{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-top:2px solid color-mix(in srgb, var(--accent) 40%, var(--border));
+    border-radius:8px;
+    box-shadow:var(--shadow);
+    text-align:center;
+    padding:52px 20px;
+  }
+  .rest-view .big{
+    font-size:16px;
+    font-weight:900;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--accent);
+    transform:scaleX(0.95);
+    margin-bottom:8px;
+  }
+  .rest-view .small{
+    font-size:13px;
+    line-height:1.6;
+    color:var(--text-dim);
   }
 
   .reset-row{
@@ -230,10 +345,12 @@
     border:1px solid var(--border);
     background:var(--surface);
     color:var(--text-dim);
-    font-size:12px;
+    font-size:11px;
     font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
     padding:8px 14px;
-    border-radius:9px;
+    border-radius:6px;
     cursor:pointer;
   }
 
@@ -244,7 +361,7 @@
     gap:10px;
     background:var(--surface);
     border:1px solid var(--border);
-    border-radius:10px;
+    border-radius:8px;
     padding:8px 12px;
     box-shadow:var(--shadow);
   }
@@ -256,15 +373,16 @@
     color:var(--text-dim);
   }
   .rest-row .rval{
+    font-family:var(--mono);
     font-size:14px;
-    font-weight:800;
+    font-weight:700;
     font-variant-numeric:tabular-nums;
     min-width:38px;
     text-align:center;
   }
   .rest-row button{
     width:28px;height:28px;
-    border-radius:8px;
+    border-radius:6px;
     border:1px solid var(--border);
     background:var(--surface-2);
     color:var(--text);
@@ -289,9 +407,9 @@
     gap:12px;
     background:var(--surface);
     border:1px solid var(--accent);
-    border-radius:999px;
+    border-radius:8px;
     padding:10px 18px;
-    box-shadow:0 0 16px color-mix(in srgb, var(--accent) 45%, transparent);
+    box-shadow:0 0 14px color-mix(in srgb, var(--accent) 30%, transparent);
     cursor:pointer;
     max-width:480px;
     width:100%;
@@ -305,11 +423,14 @@
     color:var(--text-dim);
   }
   #restTimer .rtime{
+    font-family:var(--mono);
     font-size:22px;
-    font-weight:900;
+    font-weight:700;
     color:var(--accent);
     font-variant-numeric:tabular-nums;
-    text-shadow:0 0 10px color-mix(in srgb, var(--accent) 60%, transparent);
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important;}
   }
 </style>
 
@@ -320,6 +441,8 @@
   </div>
 
   <div class="tabs" id="tabs" role="tablist"></div>
+
+  <div class="cycle" id="cycle"></div>
 
   <div id="dayTitle" class="day-title"></div>
 
@@ -347,115 +470,148 @@
 <script>
 (function(){
   // ---- Program data ----
-  // Rolling 3-day cycle, no weekday lock: Chest & Back -> Arms & Shoulders -> Legs -> repeat.
-  // Anchor: 2026-08-02 = cycle index 0 (Chest & Back), per Bjorn's confirmation.
-  var ANCHOR = new Date(2026, 7, 2); // Aug 2 2026, local midnight
+  // Adam Yu Hypertrophy Program (S5). Literal schedule per the program text:
+  // "4 days on, 1 day off, 1 day on, 1 day off, repeat" — a real 7-day cycle,
+  // one tab per calendar day. Days 1-4 are fixed sessions. Day 6 (the lone
+  // extra "1 day on") isn't auto-assigned — Adam never wrote a 5th workout, so
+  // rather than invent one, Day 6 is a picker: choose which of the 4 existing
+  // sessions to run that day. Reps/RPE/last-set intensifiers straight from the
+  // program text. Dots track WORKING sets only — run the listed feeder sets
+  // first, untracked, to warm in.
+  //
+  // Anchor: 2026-08-31 = cycle day 0 (Chest & Triceps), so 2026-08-30 = Rest.
+  var ANCHOR = new Date(2026, 7, 31); // Aug 31 2026, local midnight
+  var CYCLE_LEN = 7;
 
-  var CYCLE = [
-    { // 0 — Chest & Back
-      name: "Chest & Back",
+  var SESSIONS = [
+    { // 0 — Chest & Triceps
+      name: "Chest & Triceps",
       groups: [
         { name:"Chest", items:[
-          {n:"Weighted dips", s:3},
-          {n:"Lying down flys", s:3},
-          {n:"Going down flys", s:3},
-          {n:"Smith machine incline press", s:2}
+          {n:"Incline Barbell Press", s:4, reps:"8-10", rpe:"9", note:"3s eccentric · last set: -25%, +6-8 reps"},
+          {n:"Flat Dumbbell Press", s:4, reps:"10-12", rpe:"9", note:"squeeze 1s top, 3s down"},
+          {n:"Chest Flyes (cable/machine)", s:3, reps:"12-15", rpe:"9", note:"squeeze 2s peak — stretch & squeeze, not weight"},
+          {n:"Dips", s:3, reps:"10-12", rpe:"8.5"}
         ]},
-        { name:"Back", items:[
-          {n:"Standing bent over rows", s:3},
-          {n:"Lat pulldown", s:2},
-          {n:"Seated rows", s:3},
-          {n:"Hyper extensions", s:2},
-          {n:"Shrugs", s:3}
-        ]},
-        { name:"Abs", items:[
-          {n:"Cable crunch", s:3},
-          {n:"Lying down leg raises", s:3}
+        { name:"Triceps", items:[
+          {n:"Overhead Tricep Extension", s:3, reps:"12-15", rpe:"9"},
+          {n:"Tricep Pushdowns (rope)", s:3, reps:"15-20", rpe:"9.5", note:"last set: -30%, to complete failure"}
         ]}
       ]
     },
-    { // 1 — Arms & Shoulders
-      name: "Arms & Shoulders",
+    { // 1 — Back & Biceps
+      name: "Back & Biceps",
       groups: [
+        { name:"Back", items:[
+          {n:"Weighted Pull-Ups", s:4, reps:"8-10", rpe:"9", note:"dip belt · depress scapula before pulling"},
+          {n:"T-Bar Rows", s:4, reps:"10-12", rpe:"9", note:"squeeze 1s at top"},
+          {n:"Seated Cable Rows", s:3, reps:"12-15", rpe:"9", note:"close grip · hold squeeze 2s"},
+          {n:"Straight Arm Pulldowns", s:3, reps:"12-15", rpe:"8.5", note:"lat isolation — pull with lats not arms"}
+        ]},
         { name:"Biceps", items:[
-          {n:"Standing cable curls", s:3},
-          {n:"Hammer curls", s:3},
-          {n:"Preacher curls", s:3}
-        ]},
-        { name:"Triceps", items:[
-          {n:"Standing pushdowns", s:2},
-          {n:"Overhead push (extension)", s:3},
-          {n:"Dips", s:2},
-          {n:"Skull crushers", s:3}
-        ]},
-        { name:"Forearms", items:[
-          {n:"Inverted curls", s:3},
-          {n:"Forearm curls", s:3}
-        ]},
-        { name:"Shoulders", items:[
-          {n:"Machine shoulder press / smith press", s:3},
-          {n:"Lateral raise", s:3},
-          {n:"Seated angle lat raise", s:3},
-          {n:"Face pulls", s:3}
+          {n:"Barbell Curls", s:4, reps:"8-12", rpe:"9", note:"elbows pinned"},
+          {n:"Hammer Curls", s:3, reps:"12-15", rpe:"9", note:"last set: drop weight, +8-10 reps"},
+          {n:"Cable Curls", s:3, reps:"15-20", rpe:"9.5", note:"light weight, max squeeze"}
         ]}
       ]
     },
     { // 2 — Legs
       name: "Legs",
       groups: [
-        { name:"Hamstring", items:[
-          {n:"Lying down ham curls", s:3},
-          {n:"Seated ham curls", s:3}
+        { name:"Quads", items:[
+          {n:"Back Squats or Leg Press", s:4, reps:"10-12", rpe:"8.5"},
+          {n:"Walking Lunges", s:3, reps:"10-12/leg", rpe:"9", note:"3s tempo, torso upright"},
+          {n:"Hack Squats", s:4, reps:"10-12", rpe:"8.5"}
         ]},
-        { name:"Quad", items:[
-          {n:"Hack squats", s:3},
-          {n:"Smith squats", s:2},
-          {n:"Leg extensions", s:3},
-          {n:"Walking lunges", s:2}
-        ]},
-        { name:"Adductor", items:[
-          {n:"Adductor machine", s:2}
+        { name:"Hamstrings", items:[
+          {n:"Seated Leg Curls", s:4, reps:"10-12", rpe:"9"},
+          {n:"Lying Leg Curls", s:3, reps:"12-15", rpe:"9", note:"hips pressed into bench"}
         ]},
         { name:"Calves", items:[
-          {n:"Standing calves", s:3},
-          {n:"Seated calves", s:3}
+          {n:"Standing Calf Raises", s:4, reps:"15-20", rpe:"9.5", note:"last set: 10s hold + partials"}
+        ]}
+      ]
+    },
+    { // 3 — Shoulders & Arms
+      name: "Shoulders & Arms",
+      groups: [
+        { name:"Shoulders", items:[
+          {n:"Overhead Barbell Press", s:4, reps:"8-10", rpe:"9", note:"full ROM, full lockout"},
+          {n:"Lateral Raises", s:4, reps:"12-15", rpe:"9", note:"lead with elbows — width builder"},
+          {n:"Reverse Pec Deck / Rear Delt Flyes", s:4, reps:"15-20", rpe:"9", note:"high volume, mind-muscle"},
+          {n:"Front Raises", s:3, reps:"12-15", rpe:"8.5"}
+        ]},
+        { name:"Arms", items:[
+          {n:"Close Grip Bench / Diamond Push-Ups", s:3, reps:"10-12", rpe:"9", note:"elbows tucked, tricep mass builder"},
+          {n:"Incline Dumbbell Curls", s:3, reps:"10-12", rpe:"9", note:"45° bench — max bicep stretch"},
+          {n:"Tricep Kickbacks / Cable OH Ext", s:3, reps:"15-20", rpe:"9.5", note:"drop set last set"}
         ]}
       ]
     }
   ];
-  var CYCLE_LABELS = ["Chest & Back","Arms & Shoulders","Legs"];
+
+  // The literal 7-day cycle: Day1-4 fixed, Day5 Rest, Day6 your pick, Day7 Rest.
+  var DAYS = [
+    SESSIONS[0], SESSIONS[1], SESSIONS[2], SESSIONS[3],
+    { name: "Rest", rest: true },
+    { name: "Bonus Day", choice: true },
+    { name: "Rest", rest: true }
+  ];
+  var DAY_ARIA_LABELS = ["Chest & Triceps","Back & Biceps","Legs","Shoulders & Arms","Rest","Bonus Day","Rest"];
+  var TAB_LABELS = ["Chest<br>& Tri","Back<br>& Bi","Legs","Delts<br>& Arms","Rest","Bonus","Rest"];
 
   var LS_LASTDATE = "gymlog:lastDate";
-  var LS_PROGRESS = "gymlog:progress"; // JSON blob { "cycleIdx-g-i": filledCount }
+  var LS_PROGRESS = "gymlog:progress"; // JSON blob { "keyPrefix-g-i": filledCount }
+  var LS_BONUS = "gymlog:bonusPick"; // which SESSIONS index today's Day 6 is running, "" = unset
 
   function dateOnly(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+
+  // Straight position (0-6) in the 7-day cycle for a given date — one DAYS index
+  // per calendar day, no rotation math.
   function cycleIndexFor(d){
     var days = Math.round((dateOnly(d) - ANCHOR) / 86400000);
-    var idx = days % 3;
-    if (idx < 0) idx += 3;
+    var idx = days % CYCLE_LEN;
+    if (idx < 0) idx += CYCLE_LEN;
     return idx;
   }
 
-  var todayStr = new Date().toDateString();
-  var storedDate = localStorage.getItem(LS_LASTDATE);
-  if (storedDate !== todayStr) {
-    localStorage.setItem(LS_PROGRESS, "{}");
-    localStorage.setItem(LS_LASTDATE, todayStr);
+  // Storage can throw (private mode, blocked site data, thumbnail capture) — never let
+  // that take the whole app down. Falls back to an in-memory session on failure.
+  function lsGet(key, fallback){
+    try { var v = localStorage.getItem(key); return v === null ? fallback : v; }
+    catch(e){ return fallback; }
   }
-  var progress = JSON.parse(localStorage.getItem(LS_PROGRESS) || "{}");
+  function lsSet(key, val){
+    try { localStorage.setItem(key, val); } catch(e){ /* no persistence this session */ }
+  }
+
+  var todayStr = new Date().toDateString();
+  var storedDate = lsGet(LS_LASTDATE, null);
+  if (storedDate !== todayStr) {
+    lsSet(LS_PROGRESS, "{}");
+    lsSet(LS_BONUS, ""); // fresh pick every day, same lifecycle as the dots
+    lsSet(LS_LASTDATE, todayStr);
+  }
+  var progress;
+  try { progress = JSON.parse(lsGet(LS_PROGRESS, "{}")) || {}; }
+  catch(e){ progress = {}; }
+  var bonusPick = parseInt(lsGet(LS_BONUS, ""), 10); // NaN = unset
+  function saveBonusPick(idx){ bonusPick = idx; lsSet(LS_BONUS, String(idx)); }
 
   var todayIdx = cycleIndexFor(new Date());
   var selectedIdx = todayIdx;
+  var activeKeyPrefix = null; // set by render() whenever a session's groups are shown
 
-  function saveProgress(){ localStorage.setItem(LS_PROGRESS, JSON.stringify(progress)); }
+  function saveProgress(){ lsSet(LS_PROGRESS, JSON.stringify(progress)); }
 
   // ---- Tabs ----
   var tabsEl = document.getElementById("tabs");
-  CYCLE_LABELS.forEach(function(label, idx){
+  TAB_LABELS.forEach(function(label, idx){
     var btn = document.createElement("button");
     btn.className = "tab";
     btn.setAttribute("role","tab");
     btn.setAttribute("aria-selected", idx === selectedIdx ? "true" : "false");
+    btn.setAttribute("aria-label", DAY_ARIA_LABELS[idx]);
     btn.innerHTML = label + (idx === todayIdx ? "<span class='today-mark'>today</span>" : "");
     btn.addEventListener("click", function(){
       selectedIdx = idx;
@@ -466,17 +622,35 @@
 
   document.getElementById("dateLabel").textContent = new Date().toLocaleDateString(undefined, {weekday:"short", month:"short", day:"numeric"});
 
+  // ---- Cycle strip: makes the 7-day pattern visible instead of implied.
+  // Filled segment = a training day (including the Day 6 pick), dim = rest,
+  // ring = today. Static for the session — doesn't change when switching tabs.
+  (function renderCycleStrip(){
+    var strip = "";
+    for (var i = 0; i < DAYS.length; i++) {
+      var isTrain = !DAYS[i].rest;
+      var isToday = i === todayIdx;
+      var cls = "seg" + (isTrain ? " train" : "") + (isToday ? " today" : "");
+      var label = DAY_ARIA_LABELS[i] + (isToday ? " — today" : "");
+      strip += '<span class="' + cls + '" title="' + label + '"></span>';
+    }
+    document.getElementById("cycle").innerHTML =
+      '<span class="cyc-label">Day ' + (todayIdx + 1) + '/7</span>' +
+      '<span class="cyc-strip">' + strip + '</span>';
+  })();
+
   // ---- Reset ----
   document.getElementById("resetBtn").addEventListener("click", function(){
+    if (activeKeyPrefix === null) return; // rest day / bonus day with nothing picked yet
     Object.keys(progress).forEach(function(k){
-      if (k.indexOf(selectedIdx + "-") === 0) delete progress[k];
+      if (k.indexOf(activeKeyPrefix + "-") === 0) delete progress[k];
     });
     saveProgress(); render();
   });
 
   // ---- Rest timer ----
   var LS_RESTLEN = "gymlog:restLen";
-  var restLen = parseInt(localStorage.getItem(LS_RESTLEN) || "60", 10);
+  var restLen = parseInt(lsGet(LS_RESTLEN, "60"), 10);
   var restRemaining = 0;
   var restTicker = null;
 
@@ -489,12 +663,12 @@
 
   document.getElementById("restDown").addEventListener("click", function(){
     restLen = Math.max(15, restLen - 15);
-    localStorage.setItem(LS_RESTLEN, String(restLen));
+    lsSet(LS_RESTLEN, String(restLen));
     renderRestVal();
   });
   document.getElementById("restUp").addEventListener("click", function(){
     restLen = Math.min(300, restLen + 15);
-    localStorage.setItem(LS_RESTLEN, String(restLen));
+    lsSet(LS_RESTLEN, String(restLen));
     renderRestVal();
   });
 
@@ -525,27 +699,20 @@
   document.getElementById("restPill").addEventListener("click", stopRestTimer);
 
   // ---- Render ----
-  function render(){
-    Array.prototype.forEach.call(tabsEl.children, function(btn, idx){
-      btn.setAttribute("aria-selected", idx === selectedIdx ? "true" : "false");
-    });
-
-    var titleEl = document.getElementById("dayTitle");
-    var groupsEl = document.getElementById("groups");
-    groupsEl.innerHTML = "";
-
-    var day = CYCLE[selectedIdx];
-    titleEl.innerHTML = '<span class="name">' + day.name + '</span>' +
-      (selectedIdx === todayIdx ? '<span class="session">Today</span>' : '');
-
-    day.groups.forEach(function(group, gi){
+  // Builds the exercise cards for one set of groups into groupsEl, keying every
+  // dot's saved progress by keyPrefix so different sources (a fixed day vs a
+  // Day-6 pick) never collide. Also records keyPrefix as the active one, so the
+  // Reset button knows what "today's dots" means right now.
+  function renderGroupsInto(groupsEl, groups, keyPrefix){
+    activeKeyPrefix = keyPrefix;
+    groups.forEach(function(group, gi){
       var card = document.createElement("div");
       card.className = "group";
 
       var totalTarget = 0, totalDone = 0;
       group.items.forEach(function(item, ii){
         totalTarget += item.s;
-        var key = selectedIdx + "-" + gi + "-" + ii;
+        var key = keyPrefix + "-" + gi + "-" + ii;
         totalDone += Math.min(progress[key] || 0, item.s);
       });
       var pct = totalTarget ? Math.round((totalDone/totalTarget)*100) : 0;
@@ -558,16 +725,19 @@
       card.appendChild(head);
 
       group.items.forEach(function(item, ii){
-        var key = selectedIdx + "-" + gi + "-" + ii;
+        var key = keyPrefix + "-" + gi + "-" + ii;
         var target = item.s;
         var done = Math.min(progress[key] || 0, target);
 
         var row = document.createElement("div");
         row.className = "item";
 
+        var setLabel = target + ' set' + (target === 1 ? '' : 's') +
+          (item.reps ? ' &times; ' + item.reps : '') +
+          (item.rpe ? ' &middot; RPE ' + item.rpe : '');
         var left = document.createElement("div");
         left.innerHTML = '<span class="iname' + (done >= target ? ' done' : '') + '">' + item.n + '</span>' +
-          '<span class="iset">' + target + ' set' + (target === 1 ? '' : 's') + ' &middot; to failure</span>' +
+          '<span class="iset">' + setLabel + '</span>' +
           (item.note ? '<span class="inote">' + item.note + '</span>' : '');
         row.appendChild(left);
 
@@ -595,6 +765,61 @@
 
       groupsEl.appendChild(card);
     });
+  }
+
+  function render(){
+    Array.prototype.forEach.call(tabsEl.children, function(btn, idx){
+      btn.setAttribute("aria-selected", idx === selectedIdx ? "true" : "false");
+    });
+
+    var titleEl = document.getElementById("dayTitle");
+    var groupsEl = document.getElementById("groups");
+    groupsEl.innerHTML = "";
+    activeKeyPrefix = null;
+
+    var day = DAYS[selectedIdx];
+    var isToday = selectedIdx === todayIdx;
+    var titleName = day.name;
+    if (day.choice && bonusPick >= 0 && SESSIONS[bonusPick]) titleName = SESSIONS[bonusPick].name + " (Bonus)";
+    titleEl.innerHTML = '<span class="name">' + titleName + '</span>' +
+      (isToday ? '<span class="session">Today</span>' : '');
+
+    if (day.rest) {
+      var nextLine = 'Eat, sleep, walk.';
+      if (isToday) {
+        var tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        var nextDay = DAYS[cycleIndexFor(tomorrow)];
+        if (nextDay.choice) nextLine = 'Eat, sleep, walk.<br>Bonus day tomorrow — pick your session.';
+        else if (!nextDay.rest) nextLine = 'Eat, sleep, walk.<br>Back on ' + nextDay.name + ' tomorrow.';
+      }
+      groupsEl.innerHTML = '<div class="rest-view">' +
+        '<div class="big">No sessions today</div>' +
+        '<div class="small">4 on, 1 off, 1 on, 1 off, repeat.<br>' + nextLine + '</div></div>';
+      return;
+    }
+
+    if (day.choice) {
+      var picker = document.createElement("div");
+      picker.className = "bonus-picker";
+      var options = '<option value="">Choose a session…</option>' + SESSIONS.map(function(s, i){
+        return '<option value="' + i + '"' + (i === bonusPick ? ' selected' : '') + '>' + s.name + '</option>';
+      }).join('');
+      picker.innerHTML = '<span class="blabel">Today\'s Session</span><select id="bonusSelect">' + options + '</select>' +
+        (bonusPick < 0 ? '<span class="bhint">Pick whichever muscle group needs it most this week.</span>' : '');
+      groupsEl.appendChild(picker);
+      picker.querySelector("select").addEventListener("change", function(e){
+        var v = e.target.value;
+        saveBonusPick(v === "" ? -1 : parseInt(v, 10));
+        render();
+      });
+      if (bonusPick >= 0 && SESSIONS[bonusPick]) {
+        renderGroupsInto(groupsEl, SESSIONS[bonusPick].groups, selectedIdx + "-" + bonusPick);
+      }
+      return;
+    }
+
+    renderGroupsInto(groupsEl, day.groups, String(selectedIdx));
   }
 
   render();
