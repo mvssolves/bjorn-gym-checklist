@@ -1,5 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Gym Log">
+<meta name="theme-color" content="#17130f">
 <title>Gym Log</title>
+</head>
+<body>
 <style>
   :root{
     --bg:#17130f;
@@ -29,7 +39,7 @@
   .app{
     max-width:480px;
     margin:0 auto;
-    padding:16px 14px 40px;
+    padding:calc(16px + env(safe-area-inset-top)) 14px calc(40px + env(safe-area-inset-bottom));
     display:flex;
     flex-direction:column;
     gap:12px;
@@ -396,7 +406,7 @@
     left:0; right:0; bottom:0;
     display:none;
     justify-content:center;
-    padding:14px;
+    padding:14px 14px calc(14px + env(safe-area-inset-bottom));
     background:linear-gradient(to top, var(--bg) 60%, transparent);
     z-index:20;
   }
@@ -825,3 +835,6 @@
   render();
 })();
 </script>
+
+</body>
+</html>
