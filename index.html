@@ -287,40 +287,6 @@
     box-shadow:inset 0 -2px 3px rgba(0,0,0,.3);
   }
 
-  .bonus-picker{
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-top:2px solid color-mix(in srgb, var(--accent) 40%, var(--border));
-    border-radius:8px;
-    padding:12px;
-    box-shadow:var(--shadow);
-  }
-  .bonus-picker .blabel{
-    font-size:11px;
-    font-weight:800;
-    text-transform:uppercase;
-    letter-spacing:0.08em;
-    color:var(--text-dim);
-    display:block;
-    margin-bottom:8px;
-  }
-  .bonus-picker select{
-    width:100%;
-    background:var(--surface-2);
-    color:var(--text);
-    border:1px solid var(--border);
-    border-radius:6px;
-    padding:11px 12px;
-    font-size:14px;
-    font-weight:700;
-    font-family:inherit;
-  }
-  .bonus-picker .bhint{
-    font-size:11px;
-    color:var(--text-dim);
-    margin-top:8px;
-  }
-
   .rest-view{
     background:var(--surface);
     border:1px solid var(--border);
@@ -389,117 +355,136 @@
 
 <script>
 (function(){
-  // ---- Program data ----
-  // Adam Yu Hypertrophy Program (S5). Literal schedule per the program text:
-  // "4 days on, 1 day off, 1 day on, 1 day off, repeat" — a real 7-day cycle,
-  // one tab per calendar day. Days 1-4 are fixed sessions. Day 6 (the lone
-  // extra "1 day on") isn't auto-assigned — Adam never wrote a 5th workout, so
-  // rather than invent one, Day 6 is a picker: choose which of the 4 existing
-  // sessions to run that day. Reps/RPE/last-set intensifiers straight from the
-  // program text. Dots track WORKING sets only — run the listed feeder sets
-  // first, untracked, to warm in.
+  // ---- Program data — v2: Upper/Lower, built for weekly frequency ----
+  // Chest, Back, Shoulders hit on every Upper day (3x/week). Triceps, Biceps,
+  // Traps, Forearms rotate across the 3 Upper days so each still lands 2x/week.
+  // Legs capped at 2x/week (Lower A + Lower B only, by request — not a 3rd
+  // Lower day). Every exercise/set/rep/RPE below is reused verbatim from the
+  // prior version — nothing invented, just redistributed against the new
+  // frequency targets. No Bonus Day this time — every muscle already clears
+  // its weekly floor without needing a pick-your-own extra day.
   //
-  // Anchor: 2026-08-31 = cycle day 0 (Chest & Triceps), so 2026-08-30 = Rest.
+  // Anchor: 2026-08-31 = cycle day 0 (Upper A), so 2026-08-30 = Rest.
   var ANCHOR = new Date(2026, 7, 31); // Aug 31 2026, local midnight
   var CYCLE_LEN = 7;
 
   var SESSIONS = [
-    { // 0 — Chest & Triceps
-      name: "Chest & Triceps",
+    { // 0 — Upper A
+      name: "Upper A",
       groups: [
         { name:"Chest", items:[
           {n:"Incline Barbell Press", s:3, reps:"8-10", rpe:"9", note:"3s eccentric · last set: -25%, +6-8 reps"},
-          {n:"Flat Dumbbell Press", s:3, reps:"10-12", rpe:"9", note:"squeeze 1s top, 3s down"},
-          {n:"Chest Flyes (cable/machine)", s:4, reps:"12-15", rpe:"9", note:"squeeze 2s peak — stretch & squeeze, not weight"},
-          {n:"Dips", s:4, reps:"10-12", rpe:"8.5"}
+          {n:"Chest Flyes (cable/machine)", s:4, reps:"12-15", rpe:"9", note:"squeeze 2s peak — stretch & squeeze, not weight"}
         ]},
-        { name:"Triceps", items:[
-          {n:"Overhead Tricep Extension", s:3, reps:"12-15", rpe:"9"},
-          {n:"Tricep Pushdowns (rope)", s:3, reps:"15-20", rpe:"9.5", note:"last set: -30%, to complete failure"}
+        { name:"Back", items:[
+          {n:"Weighted Pull-Ups", s:4, reps:"8-10", rpe:"9", note:"dip belt · depress scapula before pulling"},
+          {n:"T-Bar Rows", s:4, reps:"10-12", rpe:"9", note:"squeeze 1s at top"}
         ]},
         { name:"Shoulders", items:[
-          {n:"Overhead Barbell Press", s:2, reps:"to failure", note:"full ROM, full lockout"},
-          {n:"Reverse Pec Deck / Rear Delt Flyes", s:2, reps:"to failure", note:"high volume, mind-muscle"}
+          {n:"Overhead Barbell Press", s:4, reps:"8-10", rpe:"9", note:"full ROM, full lockout"},
+          {n:"Lateral Raises", s:4, reps:"12-15", rpe:"9", note:"lead with elbows — width builder"}
+        ]},
+        { name:"Triceps", items:[
+          {n:"Tricep Pushdowns (rope)", s:3, reps:"15-20", rpe:"9.5", note:"last set: -30%, to complete failure"}
+        ]},
+        { name:"Traps", items:[
+          {n:"Barbell Shrugs", s:3, reps:"12-15", rpe:"9", note:"hold squeeze 1s at top"}
         ]}
       ]
     },
-    { // 1 — Back & Biceps
-      name: "Back & Biceps",
+    { // 1 — Lower A
+      name: "Lower A",
       groups: [
-        { name:"Back", items:[
-          {n:"Weighted Pull-Ups", s:4, reps:"8-10", rpe:"9", note:"dip belt · depress scapula before pulling"},
-          {n:"T-Bar Rows", s:4, reps:"10-12", rpe:"9", note:"squeeze 1s at top"},
-          {n:"Seated Cable Rows", s:3, reps:"12-15", rpe:"9", note:"close grip · hold squeeze 2s"},
-          {n:"Straight Arm Pulldowns", s:3, reps:"12-15", rpe:"8.5", note:"lat isolation — pull with lats not arms"}
+        { name:"Quads", items:[
+          {n:"Leg Press", s:3, reps:"10-12", rpe:"8.5"},
+          {n:"Hack Squats", s:4, reps:"10-12", rpe:"8.5"}
         ]},
-        { name:"Biceps", items:[
-          {n:"Preacher Curls", s:4, reps:"8-12", rpe:"9", note:"elbows pinned"},
-          {n:"Hammer Curls", s:3, reps:"12-15", rpe:"9", note:"last set: drop weight, +8-10 reps"},
-          {n:"Cable Curls", s:3, reps:"15-20", rpe:"9.5", note:"light weight, max squeeze"}
+        { name:"Hamstrings", items:[
+          {n:"Seated Leg Curls", s:4, reps:"10-12", rpe:"9"}
         ]},
         { name:"Calves", items:[
           {n:"Standing Calf Raises", s:4, reps:"15-20", rpe:"9.5", note:"last set: 10s hold + partials"}
+        ]}
+      ]
+    },
+    { // 2 — Upper B
+      name: "Upper B",
+      groups: [
+        { name:"Chest", items:[
+          {n:"Flat Dumbbell Press", s:3, reps:"10-12", rpe:"9", note:"squeeze 1s top, 3s down"},
+          {n:"Dips", s:4, reps:"10-12", rpe:"8.5"}
+        ]},
+        { name:"Back", items:[
+          {n:"Seated Cable Rows", s:3, reps:"12-15", rpe:"9", note:"close grip · hold squeeze 2s"},
+          {n:"Straight Arm Pulldowns", s:3, reps:"12-15", rpe:"8.5", note:"lat isolation — pull with lats not arms"}
+        ]},
+        { name:"Shoulders", items:[
+          {n:"Reverse Pec Deck / Rear Delt Flyes", s:4, reps:"15-20", rpe:"9", note:"high volume, mind-muscle"},
+          {n:"Front Raises", s:3, reps:"12-15", rpe:"8.5"}
+        ]},
+        { name:"Biceps", items:[
+          {n:"Preacher Curls", s:4, reps:"8-12", rpe:"9", note:"elbows pinned"},
+          {n:"Hammer Curls", s:3, reps:"12-15", rpe:"9", note:"last set: drop weight, +8-10 reps"}
+        ]},
+        { name:"Forearms", items:[
+          {n:"Forearm Curls", s:3, reps:"15-20", rpe:"9", note:"full wrist ROM, slow negative"}
+        ]},
+        { name:"Traps", items:[
+          {n:"Barbell Shrugs", s:3, reps:"12-15", rpe:"9", note:"hold squeeze 1s at top"}
+        ]}
+      ]
+    },
+    { // 3 — Upper C
+      name: "Upper C",
+      groups: [
+        { name:"Chest", items:[
+          {n:"Flat Dumbbell Press", s:3, reps:"10-12", rpe:"9", note:"squeeze 1s top, 3s down"}
+        ]},
+        { name:"Back", items:[
+          {n:"Weighted Pull-Ups", s:4, reps:"8-10", rpe:"9", note:"dip belt · depress scapula before pulling"}
+        ]},
+        { name:"Shoulders", items:[
+          {n:"Overhead Barbell Press", s:4, reps:"8-10", rpe:"9", note:"full ROM, full lockout"}
+        ]},
+        { name:"Triceps", items:[
+          {n:"Close Grip Bench / Diamond Push-Ups", s:3, reps:"10-12", rpe:"9", note:"elbows tucked, tricep mass builder"}
+        ]},
+        { name:"Biceps", items:[
+          {n:"Cable Curls", s:3, reps:"15-20", rpe:"9.5", note:"light weight, max squeeze"}
         ]},
         { name:"Forearms", items:[
           {n:"Forearm Curls", s:3, reps:"15-20", rpe:"9", note:"full wrist ROM, slow negative"}
         ]}
       ]
     },
-    { // 2 — Legs
-      name: "Legs",
+    { // 4 — Lower B
+      name: "Lower B",
       groups: [
         { name:"Quads", items:[
-          {n:"Leg Press", s:3, reps:"10-12", rpe:"8.5"},
-          {n:"Walking Lunges", s:4, reps:"10-12/leg", rpe:"9", note:"3s tempo, torso upright"},
-          {n:"Hack Squats", s:4, reps:"10-12", rpe:"8.5"}
+          {n:"Walking Lunges", s:4, reps:"10-12/leg", rpe:"9", note:"3s tempo, torso upright"}
         ]},
         { name:"Hamstrings", items:[
-          {n:"Seated Leg Curls", s:4, reps:"10-12", rpe:"9"},
           {n:"Lying Leg Curls", s:4, reps:"12-15", rpe:"9", note:"hips pressed into bench"}
         ]},
         { name:"Calves", items:[
           {n:"Standing Calf Raises", s:4, reps:"15-20", rpe:"9.5", note:"last set: 10s hold + partials"}
-        ]},
-        { name:"Shoulders", items:[
-          {n:"Overhead Barbell Press", s:2, reps:"to failure", note:"full ROM, full lockout"},
-          {n:"Reverse Pec Deck / Rear Delt Flyes", s:2, reps:"to failure", note:"high volume, mind-muscle"}
-        ]}
-      ]
-    },
-    { // 3 — Shoulders & Arms
-      name: "Shoulders & Arms",
-      groups: [
-        { name:"Shoulders", items:[
-          {n:"Overhead Barbell Press", s:4, reps:"8-10", rpe:"9", note:"full ROM, full lockout"},
-          {n:"Lateral Raises", s:4, reps:"12-15", rpe:"9", note:"lead with elbows — width builder"},
-          {n:"Reverse Pec Deck / Rear Delt Flyes", s:4, reps:"15-20", rpe:"9", note:"high volume, mind-muscle"},
-          {n:"Front Raises", s:3, reps:"12-15", rpe:"8.5"}
-        ]},
-        { name:"Arms", items:[
-          {n:"Close Grip Bench / Diamond Push-Ups", s:3, reps:"10-12", rpe:"9", note:"elbows tucked, tricep mass builder"},
-          {n:"Incline Dumbbell Curls", s:3, reps:"10-12", rpe:"9", note:"45° bench — max bicep stretch"},
-          {n:"Tricep Kickbacks / Cable OH Ext", s:3, reps:"15-20", rpe:"9.5", note:"drop set last set"}
-        ]},
-        { name:"Traps", items:[
-          {n:"Barbell Shrugs", s:3, reps:"12-15", rpe:"9", note:"hold squeeze 1s at top"}
         ]}
       ]
     }
   ];
 
-  // The literal 7-day cycle: Day1-4 fixed, Day5 Rest, Day6 your pick, Day7 Rest.
+  // Upper A -> Lower A -> Upper B -> Rest -> Upper C -> Lower B -> Rest, repeat.
   var DAYS = [
-    SESSIONS[0], SESSIONS[1], SESSIONS[2], SESSIONS[3],
+    SESSIONS[0], SESSIONS[1], SESSIONS[2],
     { name: "Rest", rest: true },
-    { name: "Bonus Day", choice: true },
+    SESSIONS[3], SESSIONS[4],
     { name: "Rest", rest: true }
   ];
-  var DAY_ARIA_LABELS = ["Chest & Triceps","Back & Biceps","Legs","Shoulders & Arms","Rest","Bonus Day","Rest"];
-  var TAB_LABELS = ["Chest<br>& Tri","Back<br>& Bi","Legs","Delts<br>& Arms","Rest","Bonus","Rest"];
+  var DAY_ARIA_LABELS = ["Upper A","Lower A","Upper B","Rest","Upper C","Lower B","Rest"];
+  var TAB_LABELS = ["Upper<br>A","Lower<br>A","Upper<br>B","Rest","Upper<br>C","Lower<br>B","Rest"];
 
   var LS_LASTDATE = "gymlog:lastDate";
   var LS_PROGRESS = "gymlog:progress"; // JSON blob { "keyPrefix-g-i": filledCount }
-  var LS_BONUS = "gymlog:bonusPick"; // which SESSIONS index today's Day 6 is running, "" = unset
 
   function dateOnly(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
 
@@ -526,14 +511,11 @@
   var storedDate = lsGet(LS_LASTDATE, null);
   if (storedDate !== todayStr) {
     lsSet(LS_PROGRESS, "{}");
-    lsSet(LS_BONUS, ""); // fresh pick every day, same lifecycle as the dots
     lsSet(LS_LASTDATE, todayStr);
   }
   var progress;
   try { progress = JSON.parse(lsGet(LS_PROGRESS, "{}")) || {}; }
   catch(e){ progress = {}; }
-  var bonusPick = parseInt(lsGet(LS_BONUS, ""), 10); // NaN = unset
-  function saveBonusPick(idx){ bonusPick = idx; lsSet(LS_BONUS, String(idx)); }
 
   var todayIdx = cycleIndexFor(new Date());
   var selectedIdx = todayIdx;
@@ -578,7 +560,7 @@
 
   // ---- Reset ----
   document.getElementById("resetBtn").addEventListener("click", function(){
-    if (activeKeyPrefix === null) return; // rest day / bonus day with nothing picked yet
+    if (activeKeyPrefix === null) return; // rest day, nothing to reset
     Object.keys(progress).forEach(function(k){
       if (k.indexOf(activeKeyPrefix + "-") === 0) delete progress[k];
     });
@@ -665,9 +647,7 @@
 
     var day = DAYS[selectedIdx];
     var isToday = selectedIdx === todayIdx;
-    var titleName = day.name;
-    if (day.choice && bonusPick >= 0 && SESSIONS[bonusPick]) titleName = SESSIONS[bonusPick].name + " (Bonus)";
-    titleEl.innerHTML = '<span class="name">' + titleName + '</span>' +
+    titleEl.innerHTML = '<span class="name">' + day.name + '</span>' +
       (isToday ? '<span class="session">Today</span>' : '');
 
     if (day.rest) {
@@ -676,32 +656,11 @@
         var tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
         var nextDay = DAYS[cycleIndexFor(tomorrow)];
-        if (nextDay.choice) nextLine = 'Eat, sleep, walk.<br>Bonus day tomorrow — pick your session.';
-        else if (!nextDay.rest) nextLine = 'Eat, sleep, walk.<br>Back on ' + nextDay.name + ' tomorrow.';
+        if (!nextDay.rest) nextLine = 'Eat, sleep, walk.<br>Back on ' + nextDay.name + ' tomorrow.';
       }
       groupsEl.innerHTML = '<div class="rest-view">' +
         '<div class="big">No sessions today</div>' +
-        '<div class="small">4 on, 1 off, 1 on, 1 off, repeat.<br>' + nextLine + '</div></div>';
-      return;
-    }
-
-    if (day.choice) {
-      var picker = document.createElement("div");
-      picker.className = "bonus-picker";
-      var options = '<option value="">Choose a session…</option>' + SESSIONS.map(function(s, i){
-        return '<option value="' + i + '"' + (i === bonusPick ? ' selected' : '') + '>' + s.name + '</option>';
-      }).join('');
-      picker.innerHTML = '<span class="blabel">Today\'s Session</span><select id="bonusSelect">' + options + '</select>' +
-        (bonusPick < 0 ? '<span class="bhint">Pick whichever muscle group needs it most this week.</span>' : '');
-      groupsEl.appendChild(picker);
-      picker.querySelector("select").addEventListener("change", function(e){
-        var v = e.target.value;
-        saveBonusPick(v === "" ? -1 : parseInt(v, 10));
-        render();
-      });
-      if (bonusPick >= 0 && SESSIONS[bonusPick]) {
-        renderGroupsInto(groupsEl, SESSIONS[bonusPick].groups, selectedIdx + "-" + bonusPick);
-      }
+        '<div class="small">5 training days, 2 rest, repeat.<br>' + nextLine + '</div></div>';
       return;
     }
 
