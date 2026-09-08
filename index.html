@@ -473,17 +473,20 @@
     }
   ];
 
-  // Upper A -> Upper B -> Lower A -> Rest -> Upper C -> Lower B -> Rest, repeat.
-  // Upper A and Upper B sit back-to-back on purpose (requested) so Day 2 is
-  // never a pure leg day — Legs moved to Day 3 instead.
+  // Upper A -> Rest -> Upper B -> Lower A -> Rest -> Upper C -> Lower B, repeat.
+  // No two same-type training days ever sit adjacent, including the wrap from
+  // Lower B back to Upper A — every muscle gets at least one rest day before
+  // its next session. Day 2 is Rest, not Legs (requested — Day 2 was landing
+  // right after Upper A and felt wrong as a pure leg day).
   var DAYS = [
-    SESSIONS[0], SESSIONS[2], SESSIONS[1],
+    SESSIONS[0],
     { name: "Rest", rest: true },
-    SESSIONS[3], SESSIONS[4],
-    { name: "Rest", rest: true }
+    SESSIONS[2], SESSIONS[1],
+    { name: "Rest", rest: true },
+    SESSIONS[3], SESSIONS[4]
   ];
-  var DAY_ARIA_LABELS = ["Upper A","Upper B","Lower A","Rest","Upper C","Lower B","Rest"];
-  var TAB_LABELS = ["Upper<br>A","Upper<br>B","Lower<br>A","Rest","Upper<br>C","Lower<br>B","Rest"];
+  var DAY_ARIA_LABELS = ["Upper A","Rest","Upper B","Lower A","Rest","Upper C","Lower B"];
+  var TAB_LABELS = ["Upper<br>A","Rest","Upper<br>B","Lower<br>A","Rest","Upper<br>C","Lower<br>B"];
 
   var LS_LASTDATE = "gymlog:lastDate";
   var LS_PROGRESS = "gymlog:progress"; // JSON blob { "keyPrefix-g-i": filledCount }
