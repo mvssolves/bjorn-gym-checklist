@@ -473,15 +473,17 @@
     }
   ];
 
-  // Upper A -> Lower A -> Upper B -> Rest -> Upper C -> Lower B -> Rest, repeat.
+  // Upper A -> Upper B -> Lower A -> Rest -> Upper C -> Lower B -> Rest, repeat.
+  // Upper A and Upper B sit back-to-back on purpose (requested) so Day 2 is
+  // never a pure leg day — Legs moved to Day 3 instead.
   var DAYS = [
-    SESSIONS[0], SESSIONS[1], SESSIONS[2],
+    SESSIONS[0], SESSIONS[2], SESSIONS[1],
     { name: "Rest", rest: true },
     SESSIONS[3], SESSIONS[4],
     { name: "Rest", rest: true }
   ];
-  var DAY_ARIA_LABELS = ["Upper A","Lower A","Upper B","Rest","Upper C","Lower B","Rest"];
-  var TAB_LABELS = ["Upper<br>A","Lower<br>A","Upper<br>B","Rest","Upper<br>C","Lower<br>B","Rest"];
+  var DAY_ARIA_LABELS = ["Upper A","Upper B","Lower A","Rest","Upper C","Lower B","Rest"];
+  var TAB_LABELS = ["Upper<br>A","Upper<br>B","Lower<br>A","Rest","Upper<br>C","Lower<br>B","Rest"];
 
   var LS_LASTDATE = "gymlog:lastDate";
   var LS_PROGRESS = "gymlog:progress"; // JSON blob { "keyPrefix-g-i": filledCount }
